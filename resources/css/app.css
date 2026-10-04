@@ -1,23 +1,91 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Onest:wght@400;500;600&display=swap');
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-sans: 'Onest', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-display: 'Bricolage Grotesque', 'Onest', ui-sans-serif, system-ui, sans-serif;
 }
-
-
 
 /**
     The lines above are intact.
     The lines below were added by maryUI installer.
 */
+@plugin "daisyui";
 
-/** daisyUI */
-@plugin "daisyui" {
-    themes: light --default, dark --prefersdark;
+/* Image Studio — light theme */
+@plugin "daisyui/theme" {
+  name: "light";
+  default: false;
+  prefersdark: false;
+  color-scheme: "light";
+  --color-base-100: oklch(98.17% 0.006 264.53);
+  --color-base-200: oklch(93.89% 0.013 262.38);
+  --color-base-300: oklch(87.13% 0.025 263.32);
+  --color-base-content: oklch(21.89% 0.043 261.62);
+  --color-primary: oklch(49.47% 0.261 271.56);
+  --color-primary-content: oklch(100% 0 0);
+  --color-secondary: oklch(51.46% 0.047 260.79);
+  --color-secondary-content: oklch(100% 0 0);
+  --color-accent: oklch(49.47% 0.261 271.56);
+  --color-accent-content: oklch(100% 0 0);
+  --color-neutral: oklch(21.89% 0.043 261.62);
+  --color-neutral-content: oklch(98.17% 0.006 264.53);
+  --color-info: oklch(49.47% 0.261 271.56);
+  --color-info-content: oklch(100% 0 0);
+  --color-success: oklch(56.04% 0.123 160.73);
+  --color-success-content: oklch(100% 0 0);
+  --color-warning: oklch(55.53% 0.146 49.00);
+  --color-warning-content: oklch(100% 0 0);
+  --color-error: oklch(57.71% 0.215 27.33);
+  --color-error-content: oklch(100% 0 0);
+  --radius-selector: 0.75rem;
+  --radius-field: 0.75rem;
+  --radius-box: 1.25rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
+/* Image Studio — dark theme */
+@plugin "daisyui/theme" {
+  name: "dark";
+  default: true;
+  prefersdark: true;
+  color-scheme: "dark";
+  --color-base-100: oklch(23.87% 0.057 267.61);
+  --color-base-200: oklch(18.76% 0.042 267.69);
+  --color-base-300: oklch(34.74% 0.079 267.94);
+  --color-base-content: oklch(95.04% 0.023 272.82);
+  --color-primary: oklch(70.82% 0.154 277.62);
+  --color-primary-content: oklch(18.76% 0.042 267.69);
+  --color-secondary: oklch(71.38% 0.055 268.33);
+  --color-secondary-content: oklch(18.76% 0.042 267.69);
+  --color-accent: oklch(70.82% 0.154 277.62);
+  --color-accent-content: oklch(18.76% 0.042 267.69);
+  --color-neutral: oklch(95.04% 0.023 272.82);
+  --color-neutral-content: oklch(18.76% 0.042 267.69);
+  --color-info: oklch(70.82% 0.154 277.62);
+  --color-info-content: oklch(18.76% 0.042 267.69);
+  --color-success: oklch(78.83% 0.142 163.18);
+  --color-success-content: oklch(18.76% 0.042 267.69);
+  --color-warning: oklch(80.45% 0.156 82.54);
+  --color-warning-content: oklch(18.76% 0.042 267.69);
+  --color-error: oklch(71.06% 0.166 22.22);
+  --color-error-content: oklch(18.76% 0.042 267.69);
+  --radius-selector: 0.75rem;
+  --radius-field: 0.75rem;
+  --radius-box: 1.25rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
 }
 
 /* maryUI */
@@ -31,10 +99,86 @@
 * Because Laravel defaults does not match well the design of daisyUI.
 */
 
-.mary-table-pagination span[aria-current="page"] > span {
-    @apply bg-primary text-base-100
+.mary-table-pagination span[aria-current="page"]>span {
+  @apply bg-primary text-base-100
 }
 
 .mary-table-pagination button {
-    @apply cursor-pointer
+  @apply cursor-pointer
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  [data-theme="light"] {
+    color-scheme: light;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+    scroll-padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    @apply min-h-dvh bg-base-200 font-sans text-base-content antialiased;
+    text-rendering: optimizeLegibility;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-base-300);
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-base-content);
+    opacity: 0.4;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklch, var(--color-primary) 30%, transparent);
+    color: var(--color-base-content);
+  }
+
+  [x-cloak] {
+    display: none !important;
+  }
+
+  img,
+  video {
+    height: auto;
+  }
 }

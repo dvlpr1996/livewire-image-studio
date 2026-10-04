@@ -1,67 +1,62 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ isset($title) ? $title.' - '.config('app.name') : config('app.name') }}</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+		<meta name="csrf-token" content="{{ csrf_token() }}">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="robots" content="index, follow">
+		<meta name="author" content="dvlpr1996 / Nima jahan bakhshian">
+		<meta name="keywords" content="laravel, livewire, php, tailwind, image studio">
+		<meta name="description" content="Optimize, resize, crop, rotate and watermark images in Laravel.">
+		<meta name="theme-color" content="#e6ebf4" media="(prefers-color-scheme: light)">
+		<meta name="theme-color" content="#0b1226" media="(prefers-color-scheme: dark)">
+		<meta name="color-scheme" content="light dark">
+		<link rel="icon" href="/favicon.ico" sizes="any">
+		<link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+		<title>{{ isset($title) ? $title . ' - ' . config('app.name') : config('app.name') }}</title>
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+		@vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen font-sans antialiased bg-base-200">
 
-    {{-- NAVBAR mobile only --}}
-    <x-nav sticky class="lg:hidden">
-        <x-slot:brand>
-            <x-app-brand />
-        </x-slot:brand>
-        <x-slot:actions>
-            <label for="main-drawer" class="lg:hidden me-3">
-                <x-icon name="o-bars-3" class="cursor-pointer" />
-            </label>
-        </x-slot:actions>
-    </x-nav>
+<body>
 
-    {{-- MAIN --}}
-    <x-main>
-        {{-- SIDEBAR --}}
-        <x-slot:sidebar drawer="main-drawer" collapsible class="bg-base-100 lg:bg-inherit">
+		<x-nav sticky full-width class="border-base-300 bg-base-200/85 sticky z-30 border-b py-1.5 backdrop-blur">
+				<x-slot:brand>
+						<label for="main-drawer" class="mr-3 lg:hidden">
+								<x-icon name="o-bars-3" class="cursor-pointer" />
+						</label>
 
-            {{-- BRAND --}}
-            <x-app-brand class="px-5 pt-4" />
+						<a href="{{ route('home') }}" wire:navigate
+								class="font-display flex items-center gap-2 text-xl font-extrabold tracking-tight">
+								Image Studio
+						</a>
+				</x-slot:brand>
 
-            {{-- MENU --}}
-            <x-menu activate-by-route>
+				<x-slot:actions style="gap:0.25rem">
+						<x-button label="Home" link="{{ route('home') }}"
+								class="btn-sm {{ request()->routeIs('home') ? 'btn-neutral' : 'btn-ghost' }} rounded-full text-sm font-medium"
+								responsive />
 
-                {{-- User --}}
-                @if($user = auth()->user())
-                    <x-menu-separator />
+						<x-theme-toggle class="btn-ghost btn-circle btn-sm" />
+				</x-slot:actions>
+		</x-nav>
 
-                    <x-list-item :item="$user" value="name" sub-value="email" no-separator no-hover class="-mx-2 !-my-2 rounded">
-                        <x-slot:actions>
-                            <x-button icon="o-power" class="btn-circle btn-ghost btn-xs" tooltip-left="logoff" no-wire-navigate link="/logout" />
-                        </x-slot:actions>
-                    </x-list-item>
+		<x-main with-nav full-width>
+				<x-slot:content>
+						{{ $slot }}
+				</x-slot:content>
+		</x-main>
 
-                    <x-menu-separator />
-                @endif
+		<footer
+				class="border-base-300 text-base-content/70 mt-10 flex flex-col items-center justify-center gap-2 border-t py-5 text-center text-sm">
+				<span class="inline-block">Built with Laravel, Livewire, Tailwind and Alpine.</span>
+				<span class="inline-block">© {{ date('Y') }} dvlpr1996. All rights reserved.</span>
+		</footer>
 
-                <x-menu-item title="Hello" icon="o-sparkles" link="/" />
-                
-                <x-menu-sub title="Settings" icon="o-cog-6-tooth">
-                    <x-menu-item title="Wifi" icon="o-wifi" link="####" />
-                    <x-menu-item title="Archives" icon="o-archive-box" link="####" />
-                </x-menu-sub>
-            </x-menu>
-        </x-slot:sidebar>
-
-        {{-- The `$slot` goes here --}}
-        <x-slot:content>
-            {{ $slot }}
-        </x-slot:content>
-    </x-main>
-
-    {{--  TOAST area --}}
-    <x-toast />
+		<x-toast />
 </body>
+
 </html>
