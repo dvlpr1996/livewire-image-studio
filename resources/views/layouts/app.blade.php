@@ -41,14 +41,14 @@
 				</x-slot:actions>
 		</x-nav>
 
-		<x-main with-nav full-width>
+		<x-main with-nav>
 				<x-slot:content>
 						{{ $slot }}
 				</x-slot:content>
 		</x-main>
 
 		<footer
-				class="border-base-300 text-base-content/70 mt-10 flex flex-col items-center justify-center gap-2 border-t py-5 text-center text-sm">
+				class="px-4 border-base-300 text-base-content/70 mt-10 flex flex-col items-center justify-center gap-2 border-t py-5 text-center text-sm">
 				<span class="inline-block">Built with Laravel, Livewire, Tailwind and Alpine.</span>
 				<span class="inline-block">© {{ date('Y') }} dvlpr1996. All rights reserved.</span>
 		</footer>

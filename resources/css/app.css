@@ -124,7 +124,6 @@
     text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
     scroll-behavior: smooth;
-    scroll-padding-top: env(safe-area-inset-top, 0px);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -139,10 +138,8 @@
   }
 
   body {
-    @apply min-h-dvh bg-base-200 font-sans text-base-content antialiased;
+    @apply font-sans text-base-content antialiased;
     text-rendering: optimizeLegibility;
-    padding-top: env(safe-area-inset-top, 0px);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
   *,
