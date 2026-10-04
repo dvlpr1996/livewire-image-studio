@@ -25,17 +25,14 @@
 
 		<x-nav sticky full-width class="border-base-300 bg-base-200/85 sticky z-30 border-b py-1.5 backdrop-blur">
 				<x-slot:brand>
-						<label for="main-drawer" class="mr-3 lg:hidden">
-								<x-icon name="o-bars-3" class="cursor-pointer" />
-						</label>
-
 						<a href="{{ route('home') }}" wire:navigate
-								class="font-display flex items-center gap-2 text-xl font-extrabold tracking-tight">
+								class="font-display hidden xs:flex items-center gap-2 text-xl font-extrabold tracking-tight">
+								<img src="{{ Vite::asset('resources/images/logo.png') }}" alt="logo" loading="lazy" class="size-7 hidden xs:block" />
 								Image Studio
 						</a>
 				</x-slot:brand>
 
-				<x-slot:actions style="gap:0.25rem">
+				<x-slot:actions style="gap:0.1rem">
 						<x-ui.nav-link label="home" link="home" />
 						<x-ui.nav-link label="history" link="history" />
 						<x-ui.nav-link label="api" link="api.docs" />

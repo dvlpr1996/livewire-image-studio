@@ -5,6 +5,7 @@
 @source '../../storage/framework/views/*.php';
 
 @theme {
+  --breakpoint-xs: 30rem;
   --font-sans: 'Onest', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
     'Segoe UI Symbol', 'Noto Color Emoji';
   --font-display: 'Bricolage Grotesque', 'Onest', ui-sans-serif, system-ui, sans-serif;
@@ -130,6 +131,11 @@
     html {
       scroll-behavior: auto;
     }
+  }
+
+  html,
+  body {
+    @apply h-full;
   }
 
   body {
