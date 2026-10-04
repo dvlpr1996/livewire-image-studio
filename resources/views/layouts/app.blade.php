@@ -3,6 +3,7 @@
 
 <head>
 		<meta charset="utf-8">
+		<title>{{ isset($title) ? $title . ' | ' . config('app.name') : config('app.name') }}</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 		<meta name="csrf-token" content="{{ csrf_token() }}">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -16,7 +17,6 @@
 		<link rel="icon" href="/favicon.ico" sizes="any">
 		<link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
 		<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-		<title>{{ isset($title) ? $title . ' - ' . config('app.name') : config('app.name') }}</title>
 
 		@vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -36,9 +36,9 @@
 				</x-slot:brand>
 
 				<x-slot:actions style="gap:0.25rem">
-						<x-button label="Home" link="{{ route('home') }}"
-								class="btn-sm {{ request()->routeIs('home') ? 'btn-neutral' : 'btn-ghost' }} rounded-full text-sm font-medium"
-								responsive />
+						<x-ui.nav-link label="home" link="home" />
+						<x-ui.nav-link label="history" link="history" />
+						<x-ui.nav-link label="api" link="api.docs" />
 
 						<x-theme-toggle class="btn-ghost btn-circle btn-sm" />
 				</x-slot:actions>
