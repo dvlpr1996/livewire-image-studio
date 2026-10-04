@@ -3,7 +3,7 @@
     "name": "dvlpr1996/livewire-image-studio",
     "license": "MIT",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "A livewire image optimization studio for laravel resize crop rotate filter and watermark images available via blade ui and rest api powered by intervention image",
     "homepage": "https://github.com/dvlpr1996/livewire-image-studio",
     "authors": [
         {
