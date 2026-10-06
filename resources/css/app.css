@@ -15,7 +15,9 @@
     The lines above are intact.
     The lines below were added by maryUI installer.
 */
-@plugin "daisyui";
+@plugin "daisyui" {
+  themes: light --default, dark --prefersdark;
+}
 
 /* Image Studio — light theme */
 @plugin "daisyui/theme" {
@@ -92,14 +94,10 @@
 /* maryUI */
 @source "../../vendor/robsontenorio/mary/src/View/Components/**/*.php";
 
-/* Theme toggle */
-@custom-variant dark (&:where(.dark, .dark *));
-
 /**
 * Paginator - Traditional style
 * Because Laravel defaults does not match well the design of daisyUI.
 */
-
 .mary-table-pagination span[aria-current="page"]>span {
   @apply bg-primary text-base-100
 }
@@ -108,6 +106,7 @@
   @apply cursor-pointer
 }
 
+/* Theme toggle */
 @custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
@@ -183,5 +182,29 @@
   img,
   video {
     height: auto;
+  }
+
+  input[type="file"] {
+    display: none !important;
+  }
+}
+
+@layer components {
+  .uploader {
+    @apply bg-base-100 cursor-pointer rounded-[28px] border-2 border-dashed transition py-10 px-5 text-center;
+  }
+}
+
+@layer utilities {
+  .fieldset-legend {
+    @apply m-0 mt-1 text-lg text-base-content/70;
+  }
+
+  fieldset progress.progress {
+    @apply mt-18 w-[60%];
+  }
+
+  .fieldset-label {
+    @apply justify-center;
   }
 }
