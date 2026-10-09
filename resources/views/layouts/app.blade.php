@@ -26,18 +26,21 @@
 		<x-nav sticky full-width class="border-base-300 bg-base-200/85 sticky z-30 border-b py-1.5 backdrop-blur">
 				<x-slot:brand>
 						<a href="{{ route('home') }}" wire:navigate
-								class="font-display hidden xs:flex items-center gap-2 text-xl font-extrabold tracking-tight">
-								<img src="{{ Vite::asset('resources/images/logo.png') }}" alt="logo" loading="lazy" class="size-7 hidden xs:block" />
+								class="font-display xs:flex hidden items-center gap-2 text-xl font-extrabold tracking-tight">
+								<img src="{{ Vite::asset('resources/images/logo.png') }}" alt="logo" loading="lazy"
+										class="xs:block hidden size-7" />
 								Image Studio
 						</a>
 				</x-slot:brand>
 
 				<x-slot:actions style="gap:0.1rem">
 						<x-ui.nav-link label="home" link="home" />
+						<x-ui.nav-link label="studio" link="studio" />
 						<x-ui.nav-link label="history" link="history" />
 						<x-ui.nav-link label="api" link="api.docs" />
 
-						<x-theme-toggle class="btn-ghost btn-circle btn-sm" />
+						<x-theme-toggle class="btn btn-ghost btn-circle btn-sm" lightTheme="light" darkTheme="dark" />
+
 				</x-slot:actions>
 		</x-nav>
 
@@ -48,7 +51,7 @@
 		</x-main>
 
 		<footer
-				class="px-4 border-base-300 text-base-content/70 mt-10 flex flex-col items-center justify-center gap-2 border-t py-5 text-center text-sm">
+				class="border-base-300 text-base-content/70 mt-10 flex flex-col items-center justify-center gap-2 border-t px-4 py-5 text-center text-sm">
 				<span class="inline-block">Built with Laravel, Livewire, Tailwind and Alpine.</span>
 				<span class="inline-block">© {{ date('Y') }} dvlpr1996. All rights reserved.</span>
 		</footer>

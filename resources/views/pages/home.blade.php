@@ -21,7 +21,7 @@ new #[Title('home')] class extends Component {
 								Drop in a batch, choose a format, then crop, rotate, tune and watermark. Download everything as one ZIP.
 						</p>
 						<div class="flex flex-row items-center justify-start gap-3">
-								<x-button label="Open the studio" link="{{ route('history') }}" class="btn-primary rounded-full" />
+								<x-button label="Open the studio" link="{{ route('studio') }}" class="btn-primary rounded-full" />
 								<x-button label="Read the API docs" link="{{ route('api.docs') }}"
 										class="btn-outline hidden rounded-full sm:flex" />
 						</div>

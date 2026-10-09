@@ -11,5 +11,5 @@
 		<h1 class="font-display mt-6 text-4xl font-extrabold tracking-tight">{{ $title }}</h1>
 		<p class="text-base-content/70 mt-3">{{ $description }}</p>
 
-		<x-button label="Back to Studio" link="{{ route('home') }}" class="btn-primary mt-8 rounded-full px-6" />
+		<x-button label="Back to Studio" link="{{ route('studio') }}" class="btn-primary mt-8 rounded-full px-6" />
 </div>
