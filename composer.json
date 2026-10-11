@@ -1,7 +1,7 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
     "name": "dvlpr1996/livewire-image-studio",
-    "license": "MIT",
+    "license": "proprietary",
     "type": "project",
     "description": "A livewire image optimization studio for laravel resize crop rotate filter and watermark images available via blade ui and rest api powered by intervention image",
     "homepage": "https://github.com/dvlpr1996/livewire-image-studio",
