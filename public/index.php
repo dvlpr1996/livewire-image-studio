@@ -10,11 +10,11 @@ if (file_exists($maintenance = __DIR__ . '/../storage/framework/maintenance.php'
     require $maintenance;
 }
 
-$required_extensions = ['gd'];
+$required_extensions = ['gd', 'intl'];
 
 foreach ($required_extensions as $required_extension) {
     if (!extension_loaded($required_extension)) {
-        die("The $required_extension extension is NOT active. ❌");
+        die("The {$required_extension} extension is NOT active. ❌");
     }
 }
 
