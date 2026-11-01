@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./screenshots/icon.png" alt="livewire image studio" width="96" height="96" />
+  <img src="./screenshots/logo.png" alt="livewire image studio" width="96" height="96" />
 </p>
 
 <h1 align="center">Livewire Image Studio</h1>
@@ -99,6 +99,8 @@ php artisan serve
 ---
 
 ## Screenshots
+
+See [Screenshots Of Project](./screenshots/screenshots.md).
 
 ## Road Map
 
