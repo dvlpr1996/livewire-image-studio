@@ -40,15 +40,17 @@ everything as a single ZIP — through a web UI or a REST API.
 - Laravel 13.17
 - Composer
 - Node.js 18+ and npm
-- The GD PHP extension
+- The `GD` and `intl` PHP extension
 
 ---
 
 ## Installation
 
 ```bash
-git clone repository
+git clone <repository-address>
 cd livewire-image-studio
+
+# First Enabled Gd And Intl Php Extensions
 
 composer install
 npm install
@@ -56,14 +58,9 @@ npm install
 cp .env.example .env
 php artisan key:generate
 
-php artisan migrate
-
 npm run dev
 php artisan serve
 ```
-
-Place a transparent PNG watermark at `public/watermark.png` (used when the
-watermark option is enabled).
 
 ---
 
