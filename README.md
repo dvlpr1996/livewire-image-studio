@@ -1,10 +1,35 @@
-# Livewire Image Studio
+<p align="center">
+  <img src="./screenshots/icon.png" alt="livewire image studio" width="96" height="96" />
+</p>
+
+<h1 align="center">Livewire Image Studio</h1>
 
 A Livewire-powered image optimization studio for Laravel. Upload a batch of
 images, resize, crop, rotate, filter and watermark them, then download
 everything as a single ZIP — through a web UI or a REST API.
 
+<p align="center">
+  <img src="https://img.shields.io/badge/PHP-%5E8.3-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP Version" />
+  <img src="https://img.shields.io/badge/Laravel-%5E13.17-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel" />
+  <img src="https://img.shields.io/badge/Livewire-4-FB70A9?style=for-the-badge&logo=livewire&logoColor=white" alt="Livewire 4" />
+  <img src="https://img.shields.io/badge/Intervention_Image-%5E4.1-00A98F?style=for-the-badge" alt="Intervention Image" />
+  <img src="https://img.shields.io/badge/License-Proprietary-EF4444?style=for-the-badge" alt="License" />
+</p>
+
 ---
+
+## Table of Contents
+
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Requirements](#requirements)
+- [Getting Started](#getting-started)
+- [Environment Variables](#environment-variables)
+- [Screenshots](#screenshots)
+- [Road Map](#road-map)
+- [Changelog](#changelog)
+- [Credits](#credits)
+- [License](#license)
 
 ## Features
 
@@ -44,7 +69,7 @@ everything as a single ZIP — through a web UI or a REST API.
 
 ---
 
-## Installation
+## Getting Started
 
 ```bash
 git clone <repository-address>
@@ -75,9 +100,22 @@ php artisan serve
 
 ## Screenshots
 
+## Road Map
+
+- [ ] Add History Feature
+- [ ] Add Api Feature
+
+## Changelog
+
+See [CHANGELOG.md](./CHANGELOG.md) for the full version history.
+
+## Credits
+
+- [Nima jahan bakhshian](https://github.com/dvlpr1996)
+
 ## License
 
-This project is **proprietary**. All rights reserved. See [`LICENSE`](./LICENSE.md)
-for full terms — the source is made available for viewing and review only;
-no use, modification, or redistribution is permitted without written
+This project is **`proprietary`**. All rights reserved. See [`LICENSE`](./LICENSE.md)
+for full terms — the source is made available for **viewing** and **review only**;
+no use, **modification**, or **redistribution** is permitted without written
 permission from the copyright holder.
