@@ -2,165 +2,298 @@
 
 declare(strict_types=1);
 
-use App\Services\ImageProcessor;
-use Illuminate\Support\Facades\Storage;
+use Mary\Traits\Toast;
+use Livewire\Component;
 use Illuminate\Support\Str;
-use Livewire\Attributes\Locked;
-use Livewire\Attributes\Validate;
-use Livewire\Attributes\Title;
 use App\Enums\AllowedFormat;
+use Livewire\WithFileUploads;
+use Livewire\Attributes\Title;
+use Livewire\Attributes\Locked;
+use Illuminate\Validation\Rule;
+use Livewire\Attributes\Validate;
+use App\Enums\AllowedRotateValue;
 use App\Enums\AllowedAspectRatio;
 use App\Enums\AllowedWatermarkPosition;
-use App\Enums\AllowedRotateValue;
-use Livewire\Component;
-use Mary\Traits\Toast;
-use Livewire\WithFileUploads;
+use Livewire\Exceptions\MethodNotFoundException;
+use App\Services\ImageProcessor\InterventionImage;
+use Intervention\Image\Exceptions\DecoderException;
+use App\Services\StorageManagement\StorageManagement;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 new #[Title('studio')] class extends Component {
     use Toast, WithFileUploads;
 
-    private const int MAX_FILES = 30;
-
-    #[Validate(['photos.*' => 'required|image|mimes:png,jpg,jpeg,webp|mimetypes:image/png,image/jpeg,image/webp|max:5120'])]
+    #[
+        Validate([
+            'photos' => 'nullable|array|min:1|max:5',
+            'photos.*' => 'nullable|file|mimes:png,jpg,jpeg,webp|max:5120',
+        ]),
+    ]
     public array $photos = [];
 
-    #[Validate('required|int|gte:10|lte:100')]
+    #[Validate('integer|min:10|max:100')]
     public int $quality = 80;
 
-    #[Validate('required|int|gte:50|lte:5000')]
+    #[Validate('nullable|integer|min:50|max:6000')]
     public ?int $width = 1200;
 
-    #[Validate('required|string|in_array:AllowedFormat::values()')]
+    #[Validate]
     public string $format;
 
-    #[Validate('required|string|in_array:AllowedFormat::values()')]
+    #[Validate]
     public string $ratio;
 
-    #[Validate('required|string|in_array:AllowedRotateValue::values()')]
+    #[Validate]
     public int $rotate = 0;
 
-    #[Validate('optional|bool')]
+    #[Validate('boolean')]
     public bool $flipH = false;
 
-    #[Validate('optional|bool')]
+    #[Validate('boolean')]
     public bool $flipV = false;
 
-    #[Validate('optional|string|in_array:AllowedWatermarkPosition::values()')]
-    public string $position = 'bottom-right';
+    #[Validate('nullable|integer|min:0,max:5')]
+    public int $currentSelect = 0;
 
-    public function mount()
-    {
-        $this->format = AllowedFormat::WEBP->value;
-        $this->ratio = AllowedAspectRatio::RATIO_1_1->value;
-    }
+    #[Validate]
+    public string $position;
 
+    #[Validate('boolean')]
+    public bool $grayscale = false;
+
+    #[Validate('boolean')]
+    public bool $watermark = false;
+
+    #[Validate('integer|min:0|max:50')]
+    public int $blur = 0;
+
+    #[Validate('integer|min:0|max:50')]
+    public int $sharpen = 0;
+
+    #[Validate('integer|min:-100|max:100')]
+    public int $brightness = 0;
+
+    #[Validate('integer|min:-100|max:100')]
+    public int $contrast = 0;
+
+    #[Validate('integer|min:5|max:100')]
+    public int $opacity = 60;
+
+    public array $results = [];
+
+    #[Validate('integer|min:0|max:4')]
     public int $selected = 0;
 
     #[Locked]
-    public ?string $batch = null;
+    private ?string $batch = null;
 
-    public int $sel = 0;
-    public array $results = [];
-    public bool $grayscale = false;
-    public int $blur = 0;
-    public int $sharpen = 0;
-    public int $brightness = 0;
-    public int $contrast = 0;
-    public bool $watermark = false;
-    public int $opacity = 60;
+    private readonly StorageManagement $storage;
 
-    public function select(int $index): void
+    public function mount()
     {
-        $this->selected = $index;
+        $this->format = AllowedFormat::PNG->value;
+        $this->ratio = AllowedAspectRatio::RATIO_1_1->value;
+        $this->position = AllowedWatermarkPosition::CENTER->value;
     }
 
-    public function exception($e, $stopPropagation)
+    public function boot(StorageManagement $storage)
     {
-        if ($e instanceof NotFoundException) {
-            $this->notify('Post is not found');
-            $stopPropagation();
+        $this->storage = $storage;
+    }
+
+    protected function rules(): array
+    {
+        return [
+            'format' => ['nullable', 'string', Rule::enum(AllowedFormat::class)],
+            'ratio' => ['nullable', 'string', Rule::enum(AllowedAspectRatio::class)],
+            'rotate' => ['nullable', 'integer', Rule::enum(AllowedRotateValue::class)],
+            'position' => ['nullable', 'string', Rule::enum(AllowedWatermarkPosition::class)],
+        ];
+    }
+
+    public function updatedPhotos()
+    {
+        if (count($this->photos) > 5) {
+            $this->photos = array_slice($this->photos, 0, 5);
+            $this->warning('You can upload up to 5 images. Extra files were ignored.');
+            $this->validateOnly('photos.*');
+            return;
+        }
+
+        $this->validateOnly('photos.*');
+    }
+
+    public function removePhotos(int $i): void
+    {
+        if (!isset($this->photos[$i])) {
+            return;
+        }
+
+        $photo = $this->photos[$i];
+        $photoName = $photo->getClientOriginalName();
+
+        $disk = $this->storage->disk();
+        $photoPath = $this->storage->fileDirectory($photo->getFilename());
+
+        try {
+            $disk->delete([$photoPath, $photoPath . '.json']);
+
+            unset($this->photos[$i]);
+            $this->photos = array_values($this->photos);
+            $this->selected = empty($this->photos) ? 0 : min($this->selected, count($this->photos) - 1);
+            $this->results = [];
+
+            $this->success("{$photoName} successfully removed");
+        } catch (\Exception $e) {
+            $name = $photoName ?? 'Photo';
+            $this->error("{$name} failed to remove");
         }
     }
 
-    public function optimize() {}
+    public function optimize(InterventionImage $processor): void
+    {
+        try {
+            $validated = $this->validate();
+
+            $disk = $this->storage->disk();
+
+            $this->batch = (string) Str::uuid();
+            $batchPath = "tmp/{$this->batch}";
+
+            $disk->makeDirectory($batchPath);
+
+            $this->results = [];
+
+            foreach ($this->photos as $i => $photo) {
+                $name = $this->storage->fileNameGenerator($photo->getClientOriginalName(), $validated['format']);
+
+                $before = $processor->info($photo);
+                $after = $processor->process($photo, $disk->path($batchPath), Arr::except($validated, ['selected', 'photos']));
+
+                $this->results[] = compact('name', 'before', 'after');
+            }
+
+            $this->success('Optimization completed successfully');
+        } catch (Exception $e) {
+            $this->error('Internal Server Error Occurred, Try Again Later!!');
+        }
+    }
+
+    public function download()
+    {
+        $this->info('not implemented yet');
+    }
+
+    public function exception($e, $stopPropagation): void
+    {
+        if ($e instanceof FileNotFoundException) {
+            $this->notify('image not found');
+            $this->reset('photos', 'results', 'batch');
+            $stopPropagation();
+            return;
+        }
+
+        if ($e instanceof MethodNotFoundException) {
+            $this->notify('internal server error course');
+            $this->reset('photos', 'results', 'batch');
+            $stopPropagation();
+            return;
+        }
+
+        if ($e instanceof DecoderException) {
+            $this->notify('One of the files could not be read as an image. Please check the file and try again.');
+            $stopPropagation();
+            return;
+        }
+    }
 };
 ?>
 
 <div>
-		<h2 class="font-display mb-6 text-3xl font-extrabold tracking-tight">{{ config('app.name', 'studio') }}</h2>
+		<x-ui.page-title />
+
 		<div class="grid gap-6 lg:grid-cols-[1fr_400px]">
 				<div class="space-y-6">
 
 						<div class="uploader">
-								<x-file wire:model="photos" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
-										change-text="upload here">
+								<x-file wire:model="photos" multiple accept="image/jpeg,image/png,image/webp" change-text="upload here">
 										<div class="flex flex-col justify-center gap-2">
 												<p class="font-display text-2xl font-extrabold">Drop image here</p>
 												<p class="text-base-content/60 mt-1 text-sm">
-														or click to browse. JPG, PNG, WebP and JPEG, up to 5 MB.
+														or click to browse. JPG, PNG, WebP and JPEG, up to 5 MB. Max 5 files.
 												</p>
 										</div>
 								</x-file>
 						</div>
 
-						@error('photos')
-								<x-alert title="{{ $message }}" icon="o-exclamation-triangle" class="alert-error" />
-						@enderror
-						@error('photos.*')
-								<x-alert title="{{ $message }}" icon="o-exclamation-triangle" class="alert-error" />
-						@enderror
+						<x-ui.loading text="Uploading..." target="photos" />
 
-						@if ($photos)
+						@if ($errors->any())
+								<div class="alert alert-danger">
+										<ul>
+												@foreach ($errors->all() as $error)
+														<x-alert title="{{ $error }}" icon="o-exclamation-triangle" class="alert-error" />
+												@endforeach
+										</ul>
+								</div>
+						@endif
+
+						@php $showPhotos = $photos && array_key_exists($currentSelect, $photos) @endphp
+
+						@if ($showPhotos)
 								<div class="border-base-300 bg-base-100 space-y-4 rounded-[28px] border p-4">
 										<div class="bg-base-200 grid place-items-center rounded-2xl p-3">
-												<div class="relative overflow-hidden rounded-xl shadow-lg"
-														style="aspect-ratio:{{ $ratioValue }}; width:min(100%, {{ 440 * $ratioValue }}px)">
-														<img src="{{ $photos[$sel]->temporaryUrl() }}" alt=""
+												<div class="relative overflow-hidden rounded-xl shadow-lg">
+														<img src="{{ $photos[$currentSelect]->temporaryUrl() }}" alt=""
 																class="{{ $ratio === 'original' ? 'object-contain' : 'object-cover' }} size-full"
 																style="filter:brightness({{ 1 + $brightness / 100 }}) contrast({{ 1 + $contrast / 100 }}) grayscale({{ $grayscale ? 1 : 0 }}) blur({{ $blur / 12 }}px);
                                         transform:rotate({{ $rotate }}deg) scale({{ $flipH ? -1 : 1 }},{{ $flipV ? -1 : 1 }})">
+
 														@if ($watermark)
 																<div class="pointer-events-none absolute inset-0 flex p-4"
 																		style="justify-content:{{ str_contains($position, 'left') ? 'flex-start' : (str_contains($position, 'right') ? 'flex-end' : 'center') }};
                                             align-items:{{ str_contains($position, 'top') ? 'flex-start' : (str_contains($position, 'bottom') ? 'flex-end' : 'center') }};
                                             opacity:{{ $opacity / 100 }}">
-																		<span class="font-display rounded-md bg-white/90 px-3 py-1 text-sm font-extrabold text-black">Your
-																				logo</span>
+																		<span class="font-display rounded-md bg-white/90 px-3 py-1 text-sm font-extrabold text-black">
+																				{{ config('app.name', 'studio') }}
+																		</span>
 																</div>
 														@endif
 												</div>
 										</div>
 
-										<div class="flex gap-2 overflow-x-auto pb-1">
+										<div class="mt-3 flex gap-2 overflow-x-auto pb-1">
 												@foreach ($photos as $i => $photo)
 														<div wire:key="thumb-{{ $i }}" class="relative shrink-0">
-																<button wire:click="$set('sel', {{ $i }})"
-																		class="{{ $sel === $i ? 'ring-2 ring-primary' : 'opacity-70 hover:opacity-100' }} block size-16 overflow-hidden rounded-xl">
-																		<img src="{{ $photo->temporaryUrl() }}" alt="" class="size-full object-cover">
+																<button wire:click="$set('currentSelect', {{ $i }})"
+																		class="{{ $currentSelect === $i ? 'ring-2 ring-primary' : 'opacity-70 hover:opacity-100' }} block size-16 overflow-hidden rounded-xl">
+																		<img src="{{ $photo->temporaryUrl() }}" alt="{{ Str::limit($photo->getClientOriginalName(), 20) }}"
+																				class="size-full object-cover">
 																</button>
-																<button wire:click="removePhoto({{ $i }})" aria-label="Remove"
-																		class="bg-base-content text-base-200 absolute -right-1 -top-1 grid size-5 place-items-center rounded-full text-xs">×</button>
+																<button wire:click="removePhotos({{ $i }})"
+																		class="bg-base-content text-base-200 absolute right-1 top-1 grid size-5 place-items-center rounded-full text-xs"
+																		title="remove image">
+																		×
+																</button>
 														</div>
 												@endforeach
 										</div>
 
-										<dl class="bg-base-300 grid grid-cols-2 gap-px overflow-hidden rounded-2xl text-sm sm:grid-cols-4">
-												@php $cur = $photos[$sel]; @endphp
+										<dl class="bg-base-300 grid grid-cols-3 gap-px overflow-hidden rounded-2xl text-sm sm:grid-cols-3">
+												@php $photoInfo = $photos[$currentSelect]; @endphp
 												<div class="bg-base-100 p-3">
 														<dt class="text-base-content/70">File</dt>
-														<dd class="truncate font-semibold">{{ $cur->getClientOriginalName() }}</dd>
+														<dd class="truncate font-semibold">{{ $photoInfo->getClientOriginalName() }}</dd>
 												</div>
 												<div class="bg-base-100 p-3">
 														<dt class="text-base-content/70">Original size</dt>
-														<dd class="truncate font-semibold tabular-nums">{{ Number::fileSize($cur->getSize()) }}</dd>
+														<dd class="truncate font-semibold tabular-nums">{{ Number::fileSize($photoInfo->getSize()) }}</dd>
 												</div>
 												<div class="bg-base-100 p-3">
 														<dt class="text-base-content/70">Format</dt>
-														<dd class="truncate font-semibold tabular-nums">{{ strtoupper($format) }}</dd>
-												</div>
-												<div class="bg-base-100 p-3">
-														<dt class="text-base-content/70">Quality</dt>
-														<dd class="truncate font-semibold tabular-nums">{{ $quality }}%</dd>
+														<dd class="truncate font-semibold tabular-nums">
+																{{ strtoupper($photoInfo->getMimeType()) }}
+														</dd>
 												</div>
 										</dl>
 								</div>
@@ -181,8 +314,8 @@ new #[Title('studio')] class extends Component {
 																{{ Number::fileSize($totalAfter) }}
 														</p>
 												</div>
-												<p class="font-display text-success text-5xl font-extrabold tabular-nums">
-														-{{ round(100 - ($totalAfter / max($totalBefore, 1)) * 100) }}%
+												<p class="font-display text-success text-2xl font-extrabold tabular-nums">
+														- {{ round(100 - ($totalAfter / max($totalBefore, 1)) * 100) }}%
 												</p>
 										</div>
 
@@ -211,13 +344,14 @@ new #[Title('studio')] class extends Component {
 				</div>
 
 				<div class="lg:sticky lg:top-20 lg:self-start" x-data="{ tab: 'output' }">
-						<div class="border-base-300 bg-base-100 rounded-[28px] border p-4">
+						<div class="border-base-300 bg-base-100 xs:p-4 mx-auto max-w-sm rounded-[28px] border p-2 md:max-w-full">
 
-								<div class="bg-base-200 mb-4 grid grid-cols-5 gap-1 rounded-2xl p-1 text-xs font-semibold" role="tablist">
+								<div class="bg-base-200 xs:grid-cols-5 mb-4 grid grid-cols-4 gap-1 rounded-2xl p-2 text-xs font-semibold"
+										role="tablist">
 										@foreach (['output' => 'Output', 'crop' => 'Crop', 'rotate' => 'Rotate', 'filters' => 'Filters', 'mark' => 'Mark'] as $key => $label)
 												<button type="button" role="tab" x-on:click="tab = '{{ $key }}'"
 														x-bind:class="tab === '{{ $key }}' && 'bg-base-100 shadow'"
-														class="text-base-content/70 truncate rounded-xl py-2 transition">{{ $label }}</button>
+														class="text-base-content/70 truncate rounded-xl p-2 transition">{{ $label }}</button>
 										@endforeach
 								</div>
 
@@ -281,7 +415,7 @@ new #[Title('studio')] class extends Component {
 										<div x-show="tab === 'filters'" x-cloak class="space-y-4">
 												<x-toggle label="Grayscale" wire:model.live="grayscale" right />
 												@foreach ([['brightness', 'Brightness', -100, 100], ['contrast', 'Contrast', -100, 100], ['sharpen', 'Sharpen', 0, 50], ['blur', 'Blur', 0, 50]] as [$field, $label, $min, $max])
-														<livewire:ui.range :title="$label" :rangeValue="$field" :min="$min" :max="$max" />
+														<livewire:ui.range :title="$label" :rangeValue="$min" :min="$min" :max="$max" />
 												@endforeach
 										</div>
 
