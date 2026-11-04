@@ -52,7 +52,7 @@
 
 		<footer
 				class="border-base-300 text-base-content/70 mt-10 flex flex-col items-center justify-center gap-2 border-t px-4 py-5 text-center text-sm">
-				<span class="inline-block">Built with Laravel, Livewire, Tailwind and Alpine.</span>
+				<span class="inline-block">Built with Laravel, Livewire, Tailwind CSS and Alpine.</span>
 				<span class="inline-block">© {{ date('Y') }} dvlpr1996. All rights reserved.</span>
 		</footer>
 

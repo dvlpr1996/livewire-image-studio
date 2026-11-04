@@ -194,3 +194,12 @@
     @apply border-primary bg-primary/10;
   }
 }
+
+@keyframes smooth-sway {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(10px);
+  }
+}
